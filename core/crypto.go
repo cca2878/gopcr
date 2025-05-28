@@ -16,19 +16,19 @@ import (
 	"strconv"
 )
 
-// PCRCrypto PCR Msgpack
-type PCRCrypto struct {
+// pcrCrypto PCR Msgpack
+type pcrCrypto struct {
 	mh codec.MsgpackHandle // MessagePack处理器
 }
 
-// NewPCRCrypto 创建一个新的PCR加密器
-func NewPCRCrypto() *PCRCrypto {
+// newPCRCrypto 创建一个新的PCR加密器
+func newPCRCrypto() *pcrCrypto {
 	var mh codec.MsgpackHandle
 	// 设置handle选项，使其行为与标准msgpack一致
 	mh.WriteExt = true
 	mh.RawToString = true
 
-	return &PCRCrypto{
+	return &pcrCrypto{
 		mh: mh,
 	}
 }
@@ -84,7 +84,7 @@ func unpadData(data []byte) ([]byte, error) {
 }
 
 // encrypt 加密数据
-func (c *PCRCrypto) encrypt(data []byte, key []byte) ([]byte, error) {
+func (c *pcrCrypto) encrypt(data []byte, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func (c *PCRCrypto) encrypt(data []byte, key []byte) ([]byte, error) {
 }
 
 // decrypt 解密数据
-func (c *PCRCrypto) decrypt(data []byte) ([]byte, error) {
+func (c *pcrCrypto) decrypt(data []byte) ([]byte, error) {
 	if len(data) < 32 {
 		return nil, errors.New("密文太短")
 	}
@@ -120,7 +120,7 @@ func (c *PCRCrypto) decrypt(data []byte) ([]byte, error) {
 }
 
 // encodeToMsgpack 将对象编码为MessagePack格式
-func (c *PCRCrypto) encodeToMsgpack(v any) ([]byte, error) {
+func (c *pcrCrypto) encodeToMsgpack(v any) ([]byte, error) {
 	var buf bytes.Buffer
 	if err := codec.NewEncoder(&buf, &c.mh).Encode(v); err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (c *PCRCrypto) encodeToMsgpack(v any) ([]byte, error) {
 }
 
 // decodeFromMsgpack 从MessagePack格式解码为对象
-func (c *PCRCrypto) decodeFromMsgpack(data []byte, v any) error {
+func (c *pcrCrypto) decodeFromMsgpack(data []byte, v any) error {
 	err := codec.NewDecoderBytes(data, &c.mh).Decode(v)
 	if err != nil {
 		return err
@@ -138,7 +138,7 @@ func (c *PCRCrypto) decodeFromMsgpack(data []byte, v any) error {
 }
 
 // EncryptData 加密对象数据（先编码为msgpack，再加密）
-func (c *PCRCrypto) EncryptData(v any) ([]byte, error) {
+func (c *pcrCrypto) EncryptData(v any) ([]byte, error) {
 	// 生成随机密钥
 	key, err := createKey()
 	if err != nil {
@@ -161,14 +161,14 @@ func (c *PCRCrypto) EncryptData(v any) ([]byte, error) {
 	return encrypted, nil
 }
 
-func (c *PCRCrypto) EncryptViewerId(id uint) (string, error) {
+func (c *pcrCrypto) EncryptViewerId(id uint64) (string, error) {
 	// 生成随机密钥
 	key, err := createKey()
 	if err != nil {
 		return "", err
 	}
 	// 加密
-	encrypted, err := c.encrypt([]byte(strconv.FormatUint(uint64(id), 10)), key)
+	encrypted, err := c.encrypt([]byte(strconv.FormatUint(id, 10)), key)
 	if err != nil {
 		return "", err
 	}
@@ -179,7 +179,7 @@ func (c *PCRCrypto) EncryptViewerId(id uint) (string, error) {
 }
 
 // DecryptData 解密对象数据（先解密，再从msgpack解码）。result形参为解密结构的指针
-func (c *PCRCrypto) DecryptData(encodedData string, result any) error {
+func (c *pcrCrypto) DecryptData(encodedData string, result any) error {
 	// Base64解码
 	data, err := base64.StdEncoding.DecodeString(encodedData)
 	if err != nil {

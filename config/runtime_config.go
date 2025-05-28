@@ -7,11 +7,11 @@ import (
 	"sync"
 )
 
-type optionType string
+type optionType int
 
 const (
-	AppVer     optionType = "app_ver"      // 游戏版本
-	PcrApiHost optionType = "pcr_api_host" // API主机
+	AppVer     optionType = iota // 游戏版本
+	PcrApiHost optionType = iota // API主机
 )
 
 type OptionConfig struct {

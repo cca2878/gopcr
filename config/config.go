@@ -30,7 +30,7 @@ func getDefaultHeaders() map[string]string {
 		"Accept-Encoding":      "deflate, gzip",
 		"User-Agent":           "UnityPlayer/2021.3.36f1c1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)",
 		"X-Unity-Version":      "2021.3.36f1c1",
-		"APP-VER":              DefaultAppVer,
+		"APP-VER":              GetInstance().GetOptVal(AppVer).(string),
 		"BATTLE-LOGIC-VERSION": "4",
 		"DEVICE":               "2",
 		"DEVICE-ID":            "ln-nmsl",

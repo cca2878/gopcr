@@ -22,6 +22,8 @@ type IResponse interface {
 	GetRequestId() string
 	// GetSID SID
 	GetSID() string
+	// GetResultCode 响应结果码
+	GetResultCode() int
 }
 
 type RespData interface {
@@ -63,14 +65,20 @@ func (r *BaseRequest) GetMethod() string {
 
 type dataHeaders struct {
 	Sid        string `json:"sid"`
-	ViewerId   uint   `json:"viewer_id"`
+	ViewerId   uint64 `json:"viewer_id"`
 	RequestId  string `json:"request_id"`
 	ResultCode int    `json:"result_code"`
+
+	//StoreUrl *string `json:"store_url"`
 }
 
 type BaseResponse[T RespData] struct {
 	DataHeaders dataHeaders `json:"data_headers"`
 	Data        T           `json:"data"`
+}
+
+func (b BaseResponse[T]) GetResultCode() int {
+	return b.DataHeaders.ResultCode
 }
 
 func (b BaseResponse[T]) GetRequestId() string {
